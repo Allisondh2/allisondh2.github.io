@@ -29,17 +29,17 @@ function populateTable(data) {
       const row = document.createElement('tr');
       row.innerHTML = `
           <td><a href="details.html?id=${item.pitchNo}">Pitch ${item.pitchNo}</a></td>
-          <td>${item.date || 'N/A'}</td>
-          <td>${item.time || 'N/A'}</td>
-          <td>${item.batter || 'N/A'}</td>
-          <td>${item.balls || 'N/A'}</td>
-          <td>${item.strikes || 'N/A'}</td>
-          <td>${item.outs || 'N/A'}</td>
-          <td>${item.pitchcall || 'N/A'}</td>
-          <td>${item.kobb || 'N/A'}</td>
-          <td>${item.relSpeed || 'N/A'}</td>
-          <td>${item.spinRate || 'N/A'}</td>
-          <td>${item.spinAxis || 'N/A'}</td>
+          <td>${item.Date || 'N/A'}</td>
+          <td>${item.Time || 'N/A'}</td>
+          <td>${item.Batter || 'N/A'}</td>
+          <td>${item.Balls || 'N/A'}</td>
+          <td>${item.Strikes || 'N/A'}</td>
+          <td>${item.Outs || 'N/A'}</td>
+          <td>${item.Pitchcall || 'N/A'}</td>
+          <td>${item.Kobb || 'N/A'}</td>
+          <td>${item.RelSpeed || 'N/A'}</td>
+          <td>${item.SpinRate || 'N/A'}</td>
+          <td>${item.SpinAxis || 'N/A'}</td>
       `;
       tableBody.appendChild(row);
   });
