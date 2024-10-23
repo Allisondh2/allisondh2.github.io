@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitch Stats</title>
+    <style>
+        .blue {
+            color: #0C2340;
+        }
+        .red {
+            color: #BD1F2D;
+        }
+        th {
+            border-bottom: 1px solid gray;
+            cursor: pointer; /* Indicates that the header is clickable */
+        }
+        th.sorted-asc::after {
+            content: " ▲"; /* Ascending indicator */
+        }
+        th.sorted-desc::after {
+            content: " ▼"; /* Descending indicator */
+        }
+        td {
+            text-align: center;
+        }
+        td.left {
+            text-align: left;
+        }
+        a {
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="answers.html"> My Answers</a>
+    <h1 class="red">Trackman Pitch Stats Viewer</h1>
+    <form onsubmit="filterData(event);"> 
+        <label>Starting Date</label>
+        <input type="date" id="startdate" />
+        <label>Ending Date</label>
+        <input type="date" id="enddate" />  
+        <button>Filter</button>
+    </form>
+    <table class="blue" id="pitchTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">PitchNo</th>
+                <th onclick="sortTable(1)">Date</th>
+                <th onclick="sortTable(2)">Time</th>
+                <th onclick="sortTable(3)">Batter</th>
+                <th onclick="sortTable(4)">Balls</th>
+                <th onclick="sortTable(5)">Strikes</th>
+                <th onclick="sortTable(6)">Outs</th>
+                <th onclick="sortTable(7)">Pitchcall</th>
+                <th onclick="sortTable(8)">KoBB</th>
+                <th onclick="sortTable(9)">RelSpeed</th>
+                <th onclick="sortTable(10)">SpinRate</th>
+                <th onclick="sortTable(11)">SpinAxis</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
+    
+    <script>
+        async function fetchData() {
+            const url = 'https://compute.samford.edu/zohauth/clients/datajson/1';
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                populateTable(data);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        }
+
+        function populateTable(data) {
+            const tableBody = document.getElementById('pitchTable').querySelector('tbody');
+            tableBody.innerHTML = ''; // Clear any existing data
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><a href="details.html?id=${item.PitchNo}">Pitch ${item.PitchNo}</a></td>
+                    <td>${item.Date || 'N/A'}</td>
+                    <td>${item.Time || 'N/A'}</td>
+                    <td>${item.Batter || 'N/A'}</td>
+                    <td>${item.Balls || 'N/A'}</td>
+                    <td>${item.Strikes || 'N/A'}</td>
+                    <td>${item.Outs || 'N/A'}</td>
+                    <td>${item.Pitchcall || 'N/A'}</td>
+                    <td>${item.Kobb || 'N/A'}</td>
+                    <td>${item.RelSpeed || 'N/A'}</td>
+                    <td>${item.SpinRate || 'N/A'}</td>
+                    <td>${item.SpinAxis || 'N/A'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterData(event) {
+            event.preventDefault(); 
+            var startdate = new Date(document.getElementById("startdate").value);
+            var enddate = new Date(document.getElementById("enddate").value);
+
+            var tableRows = document.querySelectorAll("#pitchTable tbody tr");
+            tableRows.forEach(row => {
+                var rowDate = new Date(row.cells[1].textContent);
+                if (rowDate >= startdate && rowDate <= enddate) {
+                    row.style.display = ""; // Show the row
+                } else {
+                    row.style.display = "none"; // Hide the row
+                }
+            });
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById("pitchTable");
+            const rows = Array.from(table.rows).slice(1);
+            const isAscending = table.querySelector(`th:nth-child(${columnIndex + 1})`).classList.contains("sorted-asc");
+
+            rows.sort((a, b) => {
+                const cellA = a.cells[columnIndex].textContent;
+                const cellB = b.cells[columnIndex].textContent;
+
+                if (columnIndex === 1) { // Date column
+                    return isAscending
+                        ? new Date(cellA) - new Date(cellB)
+                        : new Date(cellB) - new Date(cellA);
+                } else {
+                    return isAscending
+                        ? cellA.localeCompare(cellB)
+                        : cellB.localeCompare(cellA);
+                }
+            });
+
+            // Remove existing rows and append sorted rows
+            const tbody = table.querySelector("tbody");
+            tbody.innerHTML = "";
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Update sorting classes
+            table.querySelectorAll("th").forEach(th => th.classList.remove("sorted-asc", "sorted-desc"));
+            if (isAscending) {
+                table.querySelector(`th:nth-child(${columnIndex + 1})`).classList.add("sorted-desc");
+            } else {
+                table.querySelector(`th:nth-child(${columnIndex + 1})`).classList.add("sorted-asc");
+            }
+        }
+
+        // Fetch data when the page loads
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
